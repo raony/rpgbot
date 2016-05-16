@@ -1,0 +1,15 @@
+Flask==0.10.1
+Jinja2==2.8
+MarkupSafe==0.23
+Werkzeug==0.11.9
+funcsigs==1.0.2
+future==0.15.2
+gunicorn==19.5.0
+itsdangerous==0.24
+mock==2.0.0
+nose==1.3.7
+pbr==1.9.1
+python-telegram-bot==4.1
+six==1.10.0
+wsgiref==0.1.2
+git+https://github.com/raony/dicerollpkg.git

@@ -1,21 +1,18 @@
 #!/usr/bin/env python
-
-import sys
-import os
-sys.path.append(os.path.join(os.path.abspath('.'), 'venv/lib/python2.7/site-packages'))
-
 import telegram
+import re
+import os
 from flask import Flask, request
-
-from diceroll import DiceRoll
+from rpgbot import RPGBot
 
 app = Flask(__name__)
+telegram_token = os.environ['TELEGRAM_TOKEN']
+app_url = os.environ['APP_URL']
+bot = telegram.Bot(token=telegram_token)
+command_pattern = re.compile(r'/(?P<command>\w+) (?P<args>.*)')
+mrpgbot = RPGBot()
 
-global bot
-bot = telegram.Bot(token='200095754:AAGiIuriGj1Q1UDl604dWVunkc5hm5iytck')
-
-
-@app.route('/200095754:AAGiIuriGj1Q1UDl604dWVunkc5hm5iytck', methods=['POST'])
+@app.route('/'+telegram_token, methods=['POST'])
 def webhook_handler():
     if request.method == "POST":
         # retrieve the message in JSON and then transform it to Telegram object
@@ -23,21 +20,13 @@ def webhook_handler():
 
         chat_id = update.message.chat.id
         text = update.message.text
-        result = ''
 
-        if text.startswith('/r'):
-            if len(text.split(' ')) == 2:
-                num_dices = int(text.split(' ')[1])
-                roll = DiceRoll(num_dices)
-                if not roll.successes():
-                    result += 'fail'
-                else:
-                    result += ' - '.join(['SUCCESS!', unicode(roll.successes())])
-                result += ' - ' + ','.join([unicode(v) for v in roll.roll])
+        match = command_pattern.match(text)
 
-        # repeat the same message back (echo)
-        if not result:
-            result = 'Non entendo!'
+        if match:
+            result = mrpgbot.command(chat_id, match.group('command').strip(), match.group('args').strip())
+        else:
+            result = 'Non comprendo!'
 
         bot.sendMessage(chat_id=chat_id, text=result.encode('utf-8'))
 
@@ -46,7 +35,7 @@ def webhook_handler():
 
 @app.route('/set_webhook', methods=['GET', 'POST'])
 def set_webhook():
-    s = bot.setWebhook('https://primeval-creek-130123.appspot.com/200095754:AAGiIuriGj1Q1UDl604dWVunkc5hm5iytck')
+    s = bot.setWebhook(app_url + telegram_token)
     if s:
         return "webhook setup ok"
     else:
