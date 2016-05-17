@@ -2,17 +2,32 @@
 import telegram
 import re
 import os
+import logging
+import sys
 from flask import Flask, request
 from rpgbot import RPGBot
 
+RPGBotLOGGER = logging.getLogger("RPGBot")
+RPGBotLOGGER.setLevel(logging.DEBUG)
+
+ch = logging.StreamHandler(sys.stdout)
+ch.setLevel(logging.DEBUG)
+formatter = logging.Formatter('[%(asctime)s] [%(name)s] [%(levelname)s] %(message)s')
+ch.setFormatter(formatter)
+RPGBotLOGGER.addHandler(ch)
+
+
 app = Flask(__name__)
-telegram_token = os.environ['TELEGRAM_TOKEN']
-app_url = os.environ['APP_URL']
-bot = telegram.Bot(token=telegram_token)
+telegram_token = os.getenv('TELEGRAM_TOKEN')
+app_url = os.getenv('APP_URL', '')
+
+if telegram_token:
+    bot = telegram.Bot(token=telegram_token)
+
 command_pattern = re.compile(r'/(?P<command>\w+) (?P<args>.*)')
 mrpgbot = RPGBot()
 
-@app.route('/'+telegram_token, methods=['POST'])
+@app.route('/'+str(telegram_token), methods=['POST'])
 def webhook_handler():
     if request.method == "POST":
         # retrieve the message in JSON and then transform it to Telegram object
@@ -45,3 +60,6 @@ def set_webhook():
 @app.route('/')
 def index():
     return '.'
+
+if __name__ == '__main__':
+    app.run()

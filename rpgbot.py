@@ -1,7 +1,9 @@
 import diceroll
 import re
 import logging
+import sys
 
+LOGGER = logging.getLogger("RPGBot")
 
 class DicePatternDict(dict):
     pattern_arguments = re.compile(r'\{\d+\}')
@@ -42,7 +44,7 @@ class RPGBot(object):
         return self._aliases.get(cmd, cmd)
 
     def command(self, chat_id, cmd, *args):
-        logging.info('INCOMING %s: %s %s', chat_id, cmd, ' '.join(args))
+        LOGGER.info('INCOMING %s: %s %s', chat_id, cmd, ' '.join(args))
         result = None
         try:
             cmd_name = self._get_cmd_name(cmd)
@@ -51,9 +53,9 @@ class RPGBot(object):
             else:
                 result = 'Invalid command.'
         except:
-            logging.exception('Exception occurred')
+            LOGGER.exception('Exception occurred')
             result = 'Sorry, an error happened!'
-        logging.info('RESPONSE: %s', result)
+        LOGGER.info('RESPONSE: %s', result)
         return result
 
     def setdice(self, chat_id, pattern):
@@ -77,4 +79,3 @@ class RPGBot(object):
             except ValueError:
                 pass
         return 'Invalid pattern.'
-
