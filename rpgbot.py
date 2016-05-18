@@ -16,6 +16,9 @@ class RedisCache(object):
     def __getitem__(self, item):
         return self.redis.getall()
 
+    def has_key(self, key):
+        return self.redis.exists(key)
+
 def dice_result_format(result):
     str_result = 'Rolling {0} dices... '.format(unicode(result.roll.dices))
     if isinstance(result, diceroll.SuccessRollResult):
