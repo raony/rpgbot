@@ -67,13 +67,14 @@ class RPGBot(object):
 
     def roll(self, chat_id, pattern):
         try:
+            pattern = unicode(pattern)
             dice_roll = diceroll.parse(pattern)
             result = dice_roll.roll()
             return dice_result_format(result)
         except ValueError:
             try:
                 if self._cache.has_key(chat_id):
-                    dice_roll = diceroll.parse(self._cache[chat_id].format(*map(str.strip, pattern.split(','))))
+                    dice_roll = diceroll.parse(self._cache[chat_id].format(*map(unicode.strip, pattern.split(','))))
                     result = dice_roll.roll()
                     return dice_result_format(result)
             except ValueError:

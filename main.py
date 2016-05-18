@@ -27,7 +27,7 @@ if telegram_token:
 command_pattern = re.compile(r'/(?P<command>\w+) (?P<args>.*)')
 mrpgbot = RPGBot()
 
-@app.route('/'+str(telegram_token), methods=['POST'])
+@app.route('/'+unicode(telegram_token), methods=['POST'])
 def webhook_handler():
     if request.method == "POST":
         # retrieve the message in JSON and then transform it to Telegram object
