@@ -5,21 +5,16 @@ import sys
 
 LOGGER = logging.getLogger("RPGBot")
 
-class DicePatternDict(dict):
-    pattern_arguments = re.compile(r'\{\d+\}')
-
-    def _replace_arguments(self, pattern):
-        return DicePatternDict.pattern_arguments.sub('1', pattern)
+class RedisCache(object):
+    def __init__(self, redis):
+        self.redis = redis
 
     def __setitem__(self, key, value):
-        replaced_value = self._replace_arguments(value)
-        if diceroll.validate_dice_pattern(replaced_value):
-            return super(DicePatternDict, self).__setitem__(key, value)
-        else:
-            raise ValueError('invalid pattern')
+        self.redis.delete(key)
+        self.redis.hmset(key, value)
 
     def __getitem__(self, item):
-        return super(DicePatternDict, self).__getitem__(item)
+        return self.redis.getall()
 
 def dice_result_format(result):
     str_result = 'Rolling {0} dices... '.format(unicode(result.roll.dices))
@@ -34,8 +29,8 @@ def dice_result_format(result):
 
 
 class RPGBot(object):
-    def __init__(self):
-        self._cache = DicePatternDict()
+    def __init__(self, cache):
+        self._cache = cache
         self._aliases = {
             'r': 'roll',
         }
@@ -59,11 +54,9 @@ class RPGBot(object):
         return result
 
     def setdice(self, chat_id, pattern):
-        try:
-            self._cache[chat_id] = pattern
-            return 'Current dice pattern set to {0}.'.format(pattern)
-        except ValueError:
-            return 'Invalid pattern.'
+        chat_data = self._cache[chat_id]
+        chat_data['pattern'] = pattern
+        return 'Current dice pattern set to {0}.'.format(pattern)
 
     def roll(self, chat_id, pattern):
         try:
@@ -74,7 +67,8 @@ class RPGBot(object):
         except ValueError:
             try:
                 if self._cache.has_key(chat_id):
-                    dice_roll = diceroll.parse(self._cache[chat_id].format(*map(unicode.strip, pattern.split(','))))
+                    dice_roll = diceroll.parse(self._cache[chat_id]['pattern'].format(
+                        *map(unicode.strip, pattern.split(','))))
                     result = dice_roll.roll()
                     return dice_result_format(result)
             except ValueError:

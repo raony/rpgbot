@@ -5,7 +5,11 @@ import os
 import logging
 import sys
 from flask import Flask, request
-from rpgbot import RPGBot
+from rpgbot import RPGBot, RedisCache
+import os
+import redis
+
+r = redis.from_url(os.environ.get("REDIS_URL"))
 
 RPGBotLOGGER = logging.getLogger("RPGBot")
 RPGBotLOGGER.setLevel(logging.DEBUG)
@@ -25,7 +29,7 @@ if telegram_token:
     bot = telegram.Bot(token=telegram_token)
 
 command_pattern = re.compile(r'/(?P<command>\w+) (?P<args>.*)')
-mrpgbot = RPGBot()
+mrpgbot = RPGBot(RedisCache(r))
 
 @app.route('/'+unicode(telegram_token), methods=['POST'])
 def webhook_handler():
@@ -34,7 +38,7 @@ def webhook_handler():
         update = telegram.Update.de_json(request.get_json(force=True))
 
         chat_id = update.message.chat.id
-        text = update.message.text
+        text = update.message.text.lower()
 
         match = command_pattern.match(text)
 
