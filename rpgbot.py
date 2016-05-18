@@ -59,6 +59,7 @@ class RPGBot(object):
     def setdice(self, chat_id, pattern):
         chat_data = self._cache[chat_id]
         chat_data['pattern'] = pattern
+        self._cache[chat_id] = chat_data
         return 'Current dice pattern set to {0}.'.format(pattern)
 
     def roll(self, chat_id, pattern):
