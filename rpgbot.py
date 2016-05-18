@@ -14,7 +14,7 @@ class RedisCache(object):
         self.redis.hmset(key, value)
 
     def __getitem__(self, item):
-        return self.redis.hgetall()
+        return self.redis.hgetall(item)
 
     def has_key(self, key):
         return self.redis.exists(key)
