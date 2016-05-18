@@ -1,7 +1,9 @@
 import unittest
 import mock
-from rpgbot import RPGBot, dice_result_format
+import redis
+from rpgbot import RPGBot, dice_result_format, RedisCache
 from diceroll import DiceRollResult, DiceRoll, SuccessRollResult
+
 
 class DiceResultFormatTest(unittest.TestCase):
     def simple_roll_test(self):
@@ -30,25 +32,30 @@ class DiceResultFormatTest(unittest.TestCase):
             )
         ))
 
-
 class RPGBotTest(unittest.TestCase):
     def invalid_command_test(self):
-        target = RPGBot({})
+        target = RPGBot(RedisCache(mock.create_autospec(redis.StrictRedis)))
         self.assertEquals('Invalid command.', target.command('123', 'arroz', 'any', 'parameter'))
 
     @mock.patch('random.randint')
     def success_roll_test(self, randint_call):
         randint_call.side_effect = [1,2,3,4,5,6,7,8,8,8]
-        target = RPGBot({})
+        target = RPGBot(RedisCache(mock.create_autospec(redis.StrictRedis)))
         self.assertEquals('Rolling 10 dices... SUCCESS = 3 - 1,2,3,4,5,6,7,8,8,8', target.command('123', 'r', '10d8>8'))
 
     def wrong_roll_pattern_test(self):
-        target = RPGBot({})
+        redis_mock = mock.create_autospec(redis.StrictRedis)
+        redis_mock.exists.return_value = False
+        target = RPGBot(RedisCache(redis_mock))
         self.assertEquals('Invalid pattern.', target.command('123', 'r', 'd8>8'))
 
     @mock.patch('random.randint')
     def using_dice_pattern_test(self, randint_call):
+        mock_cache = {}
+        redis_mock = mock.create_autospec(redis.StrictRedis)
+        redis_mock.exists.return_value = True
+        redis_mock.hgetall.return_value = mock_cache
         randint_call.side_effect = [1,2,3,4,5,6,7,8,8,8]
-        target = RPGBot({'123': {}})
+        target = RPGBot(RedisCache(redis_mock))
         self.assertEquals('Current dice pattern set to {0}d{1}>8.', target.command('123', 'setdice', '{0}d{1}>8'))
         self.assertEquals('Rolling 10 dices... SUCCESS = 3 - 1,2,3,4,5,6,7,8,8,8', target.command('123', 'r', '10,8'))
