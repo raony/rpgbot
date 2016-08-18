@@ -2,7 +2,7 @@ import unittest
 import mock
 import redis
 from rpgbot import RPGBot, dice_result_format, RedisCache
-from diceroll import DiceRollResult, DiceRoll, SuccessRollResult
+from diceroll import DiceRollResult, DiceRoll, SuccessRollResult, SumRollResult
 
 
 class DiceResultFormatTest(unittest.TestCase):
@@ -29,6 +29,15 @@ class DiceResultFormatTest(unittest.TestCase):
                 DiceRoll(4, 8),
                 [1, 2, 2, 2],
                 treshold=3
+            )
+        ))
+
+    def simple_sum_test(self):
+        self.assertEquals('Rolling 4 dices... TOTAL: 14 - 1,2,4,3', dice_result_format(
+            SumRollResult(
+                DiceRoll(4, 8),
+                [1, 2, 4, 3],
+                4
             )
         ))
 
