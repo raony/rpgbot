@@ -52,6 +52,12 @@ class RPGBotTest(unittest.TestCase):
         target = RPGBot(RedisCache(mock.create_autospec(redis.StrictRedis)))
         self.assertEquals('Rolling 10 dices... SUCCESS = 3 - 1,2,3,4,5,6,7,8,8,8', target.command('123', 'r', '10d8>8'))
 
+    @mock.patch('random.randint')
+    def sum_roll_test(self, randint_call):
+        randint_call.side_effect = [1, 2, 3, 4]
+        target = RPGBot(RedisCache(mock.create_autospec(redis.StrictRedis)))
+        self.assertEquals('Rolling 4 dices... TOTAL: 15 - 1,2,3,4', target.command('123', 'r', '4d8+5'))
+
     def wrong_roll_pattern_test(self):
         redis_mock = mock.create_autospec(redis.StrictRedis)
         redis_mock.exists.return_value = False

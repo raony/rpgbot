@@ -2,7 +2,7 @@ Flask==0.10.1
 Jinja2==2.8
 MarkupSafe==0.23
 Werkzeug==0.11.9
--e git+https://github.com/raony/dicerollpkg.git@385a11a3c0aab4d431f186a0c189f37f2df80827#egg=diceroll-master
+-e git+https://github.com/raony/dicerollpkg.git@f1015fb53e989c8efc0179cd611daf56cb7d3cf6#egg=diceroll-master
 funcsigs==1.0.2
 future==0.15.2
 gunicorn==19.5.0
