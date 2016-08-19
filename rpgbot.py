@@ -26,9 +26,14 @@ def dice_result_format(result):
             str_result += 'SUCCESS = {0} - '.format(result.success())
         else:
             str_result += 'FAIL! - '
+        str_result += ','.join(map(unicode, result.rolls))
     elif isinstance(result, diceroll.SumRollResult):
-        str_result += 'TOTAL: {0} - '.format(result.total)
-    str_result += ','.join(map(unicode, result.rolls))
+        str_result += 'TOTAL = {0} ({1}+{2})'.format(result.total,
+                                                     '+'.join(map(unicode, result.rolls)),
+                                                     result.modifier)
+    else:
+        str_result += ','.join(map(unicode, result.rolls))
+
 
     return str_result
 

@@ -33,7 +33,7 @@ class DiceResultFormatTest(unittest.TestCase):
         ))
 
     def simple_sum_test(self):
-        self.assertEquals('Rolling 4 dices... TOTAL: 14 - 1,2,4,3', dice_result_format(
+        self.assertEquals('Rolling 4 dices... TOTAL = 14 (1+2+4+3+4)', dice_result_format(
             SumRollResult(
                 DiceRoll(4, 8),
                 [1, 2, 4, 3],
@@ -56,7 +56,7 @@ class RPGBotTest(unittest.TestCase):
     def sum_roll_test(self, randint_call):
         randint_call.side_effect = [1, 2, 3, 4]
         target = RPGBot(RedisCache(mock.create_autospec(redis.StrictRedis)))
-        self.assertEquals('Rolling 4 dices... TOTAL: 15 - 1,2,3,4', target.command('123', 'r', '4d8+5'))
+        self.assertEquals('Rolling 4 dices... TOTAL = 15 (1+2+3+4+5)', target.command('123', 'r', '4d8+5'))
 
     def wrong_roll_pattern_test(self):
         redis_mock = mock.create_autospec(redis.StrictRedis)
